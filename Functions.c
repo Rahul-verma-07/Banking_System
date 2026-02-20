@@ -855,3 +855,30 @@ void handle_other_option(data *user)
 
     } while (1);
 }
+
+
+/*==========================================TO Handle Save Transaction==========================================*/
+
+void save_transaction(const char *acc_num, const char *type, double amt, double bal)
+{
+    FILE *fp;
+    trans history;
+
+    strcpy(history.acc, acc_num);
+    strcpy(history.type, type);
+    history.amount = amt;
+    history.balance_after = bal;
+
+    fp = fopen("transaction.dat", "ab");
+
+    if (fp == NULL)
+    {
+        p_line("\nSorry Server Error!\n", 0.7);
+        p_line("Please Try Again", 0.7);
+        p_line("...\n", 1.5);
+        return;
+    }
+
+    fwrite(&history, sizeof(history), 1, fp);
+    fclose(fp);
+}
