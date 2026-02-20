@@ -924,3 +924,132 @@ void view_transaction(const char *acc_num)
         p_line("|----------------------------------------|\n", 0.2);
     }
 }
+
+
+/*==========================================TO Handle View Transaction==========================================*/
+
+void delete_user(void)
+{
+    FILE *fp, *temp_fp;
+    data user;
+    char acc_num[10], pass[10];
+
+    do
+    {
+
+        p_line("\n\n================| DELETE ACCOUNT |================\n\n", 0.7);
+
+        int found = 0;
+
+        p_line("\n=> Enter Your Account Number: ", 0.3);
+        fgets(acc_num, sizeof(acc_num), stdin);
+        acc_num[strcspn(acc_num, "\n")] = '\0';
+
+        if (strlen(acc_num) != 6)
+        {
+            p_line("\n\n \tEnter a Valid Account Number!\n", 0.4);
+            p_line("|===========================================|\n\n", 0.1);
+            p_line(" ", 1.5);
+            clear_screen();
+            continue;
+        }
+
+        int valid3 = 1;
+        for (int i = 0; i < 6; i++)
+        {
+            if (acc_num[i] < '0' || acc_num[i] > '9')
+            {
+                valid3 = 0;
+                break;
+            }
+        }
+
+        if (!valid3)
+        {
+            p_line("\n\n \tEnter a Valid Account Number!\n", 0.4);
+            p_line("|===========================================|\n\n", 0.1);
+            p_line(" ", 1.5);
+            clear_screen();
+            continue;
+        }
+
+        // TAKE PASSWORD INPUT
+        p_line("\n=> Enter Your Password: ", 0.3);
+        fgets(pass, sizeof(pass), stdin);
+        pass[strcspn(pass, "\n")] = '\0';
+
+        fp = fopen("data.dat", "rb");
+        temp_fp = fopen("temp.dat", "wb");
+
+        if (!fp || !temp_fp)
+        {
+            p_line("\n\nSorry Server Error!\n", 0.7);
+            p_line("Please Try Again", 0.7);
+            p_line("...\n", 1.5);
+            return;
+        }
+
+        while (fread(&user, sizeof(user), 1, fp))
+        {
+            if (strcmp(user.acc_num, acc_num) == 0 &&
+                strcmp(user.pass, pass) == 0)
+            {
+                found = 1;
+            }
+            else
+            {
+                fwrite(&user, sizeof(user), 1, temp_fp);
+            }
+        }
+        fclose(fp);
+        fclose(temp_fp);
+
+        if (found)
+        {
+
+            remove("data.dat");
+
+            if (rename("temp.dat", "data.dat") != 0)
+            {
+                perror("\n\nrename");
+            }
+
+            delete_user_transaction(acc_num);
+
+            p_line("\n\n\t    Deleting Account!", 0.7);
+            p_line("....\n", 1.5);
+            p_line("        Account Deleted Successfully\n", 0.7);
+            p_line("|==========================================|\n\n", 0.3);
+
+            p_line("\n=> Press \"ENTER Twice\" to Move Back: ", 0.7);
+            getchar();
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\tMoving Back to Main Menu", 0.7);
+            p_line("...\n", 1.5);
+            clear_screen();
+            return;
+        }
+        else
+        {
+            p_line("\n\n\tNo User Found! or ", 0.7);
+            p_line("Incorrect Password!\n", 0.7);
+            p_line("\t\tPlease Try Again!", 0.7);
+            p_line("...\n", 1.5);
+
+            p_line("\n\n=> Press \"ENTER Twice\" to Move Back: ", 0.7);
+            getchar();
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\tMoving Back to Main Menu", 0.7);
+            p_line("...\n", 1.5);
+            clear_screen();
+            return;
+        }
+
+    } while (1);
+}
