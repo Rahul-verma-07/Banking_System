@@ -588,3 +588,270 @@ void handle_transaction(data *user)
 
     } while (1);
 }
+
+
+/*==========================================TO Handle Other Options==========================================*/
+
+void handle_other_option(data *user)
+{
+    FILE *fp;
+    data temp;
+    int option;
+    char verify[10];
+    char verify1[10];
+
+    long long new_ph_num;
+    char new_pass[10];
+    char new_ph_str[20];
+
+    do
+    {
+        clear_screen();
+        p_line("\n\n================| OTHER OPTION |================\n\n", 0.7);
+        p_line("  1 => Change Phone Number\n", 0.1);
+        p_line("  2 => Change Password\n", 0.1);
+        p_line("  3 => View Transaction History\n", 0.1);
+        p_line("  4 => Back\n", 0.1);
+
+        p_line("\n=> Please Select any Option: ", 0.7);
+
+        if (scanf("%d", &option) != 1 || option < 1 || option > 4)
+        {
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\nInvalid Input!\n", 0.4);
+            p_line("SORRY! Please Try Again", 0.4);
+            p_line("-------\n", 1.5);
+
+            clear_screen();
+            continue;
+        }
+
+        getchar();
+
+        switch (option)
+        {
+        case 1:
+            clear_screen();
+            // NEW PHONE NUMBER LOOP
+            while (1)
+            {
+                // PHONE NUMBER
+                p_line("\n=> Enter Your New Phone Number: ", 0.3);
+                fgets(new_ph_str, sizeof(new_ph_str), stdin);
+                new_ph_str[strcspn(new_ph_str, "\n")] = '\0';
+
+                // LENGTH CHECK
+                if (strlen(new_ph_str) != 10)
+                {
+                    p_line("\n\tEnter a Valid Phone Number!\t\n", 0.7);
+                    p_line("|=========================================|\n\n", 0.4);
+                    clear_screen();
+                    continue;
+                }
+
+                // DIGIT CHECK
+                int valid1 = 1;
+                for (int i = 0; i < strlen(new_ph_str); i++)
+                {
+                    if (new_ph_str[i] < '0' || new_ph_str[i] > '9')
+                    {
+                        valid1 = 0;
+                        break;
+                    }
+                }
+
+                if (!valid1)
+                {
+                    p_line("\n\tEnter a Valid Phone Number!\t\n", 0.7);
+                    p_line("|=========================================|\n\n", 0.4);
+                    clear_screen();
+                    continue;
+                }
+
+                new_ph_num = atoll(new_ph_str);
+
+                // PASSWORD VERIFICATION
+                p_line("\n=> Enter Your Current Password: ", 0.3);
+                fgets(verify, sizeof(verify), stdin);
+                verify[strcspn(verify, "\n")] = '\0';
+
+                int update = 0;
+
+                fp = fopen("data.dat", "rb+");
+
+                if (fp == NULL)
+                {
+                    p_line("\nSorry Server Error!\n", 0.7);
+                    p_line("Please Try Again", 0.7);
+                    p_line("...\n", 1.5);
+                    clear_screen();
+                    return;
+                }
+
+                if (fp != NULL)
+                {
+                    while (fread(&temp, sizeof(temp), 1, fp))
+                    {
+                        if (strcmp(user->acc_num, temp.acc_num) == 0)
+                        {
+                            if (strcmp(temp.pass, verify) != 0)
+                            {
+                                p_line("\n\t\tIncorrect Password!\n", 0.7);
+                                p_line("\t\tPlease Try Again!", 0.7);
+                                p_line("...\n", 1.5);
+                                clear_screen();
+                                break;
+                            }
+
+                            if (temp.ph_num == new_ph_num)
+                            {
+                                p_line("\n\n\tEnter a New Phone Number!\t\n", 0.7);
+                                p_line("|=======================================|\n\n", 0.4);
+                                clear_screen();
+                                break;
+                            }
+
+                            user->ph_num = new_ph_num;
+
+                            fseek(fp, -sizeof(temp), SEEK_CUR);
+                            fwrite(user, sizeof(*user), 1, fp);
+
+                            update = 1;
+                            break;
+                        }
+                    }
+                    fclose(fp);
+                }
+
+                if (update == 1)
+                {
+                    break;
+                }
+                else
+                    continue;
+            }
+
+            p_line("\n\nUPDATING", 0.5);
+            p_line("....\n", 1.5);
+            printf("Phone Number Changed ~\n");
+            break;
+
+        case 2:
+            clear_screen();
+            // NEW PASSWORD LOOP
+            while (1)
+            {
+
+                p_line("\n=> Enter Your New Password: ", 0.3);
+                fgets(new_pass, sizeof(new_pass), stdin);
+                new_pass[strcspn(new_pass, "\n")] = '\0';
+
+                if (strlen(new_pass) != 4)
+                {
+                    p_line("\n\n  \tPassword must be 4-CHARECTERS!\t\n", 0.4);
+                    p_line("|============================================|\n", 0.1);
+                    clear_screen();
+                    continue;
+                }
+
+                // PASSWORD VERIFICATION
+                p_line("\n=> Enter Your Current Password: ", 0.3);
+                fgets(verify1, sizeof(verify1), stdin);
+                verify1[strcspn(verify1, "\n")] = '\0';
+
+                int update1 = 0;
+
+                fp = fopen("data.dat", "rb+");
+
+                if (fp == NULL)
+                {
+                    p_line("\nSorry Server Error!\n", 0.7);
+                    p_line("Please Try Again", 0.7);
+                    p_line("...\n", 1.5);
+                    return;
+                }
+
+                if (fp != NULL)
+                {
+                    while (fread(&temp, sizeof(temp), 1, fp))
+                    {
+                        if (strcmp(user->acc_num, temp.acc_num) == 0)
+                        {
+                            if (strcmp(temp.pass, verify1) != 0)
+                            {
+                                p_line("\n\n\t\tIncorrect Password!\n", 0.7);
+                                p_line("\t\tPlease Try Again!", 0.7);
+                                p_line("...\n", 1.5);
+                                clear_screen();
+                                break;
+                            }
+
+                            if (strcmp(temp.pass, new_pass) == 0)
+                            {
+                                p_line("\n\n\tEnter a New Password! ******\t\n", 0.4);
+                                p_line("|==========================================|\n\n", 0.1);
+                                p_line(" ", 1.0);
+                                clear_screen();
+                                break;
+                            }
+
+                            strcpy(user->pass, new_pass);
+
+                            fseek(fp, -sizeof(temp), SEEK_CUR);
+                            fwrite(user, sizeof(*user), 1, fp);
+
+                            update1 = 1;
+                            break;
+                        }
+                    }
+                    fclose(fp);
+                }
+
+                if (update1 == 1)
+                {
+                    break;
+                }
+                else
+                    continue;
+            }
+
+            p_line("\n\nUPDATING", 0.5);
+            p_line("....\n", 1.5);
+            printf("Password Changed ~\n");
+            break;
+
+        case 3:
+            p_line("\n  \tMoving to Transaction History", 0.4);
+            p_line("...\n", 1.5);
+            clear_screen();
+            view_transaction(user->acc_num);
+            break;
+
+        case 4:
+            p_line("\n  \tMoving to Transaction Menu", 0.4);
+            p_line("...\n", 1.5);
+            clear_screen();
+            return;
+
+        default:
+            break;
+        }
+
+        if (option != 4)
+        {
+            p_line("\n\n=> Press \"ENTER Twice\" to Move Back: ", 0.7);
+            getchar();
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\tReloading Page", 0.7);
+            p_line("...\n", 1.5);
+            clear_screen();
+        }
+
+    } while (1);
+}
