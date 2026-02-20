@@ -1082,12 +1082,6 @@ void delete_user(void)
 
         if (found)
         {
-            // if (rename("temp.dat", "data.dat") != 0)
-            // {
-            //     perror("rename");
-            //     remove("temp.dat");
-            // }
-
             remove("data.dat");
 
             if (rename("temp.dat", "data.dat") != 0)
