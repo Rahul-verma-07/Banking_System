@@ -926,7 +926,7 @@ void view_transaction(const char *acc_num)
 }
 
 
-/*==========================================TO Handle View Transaction==========================================*/
+/*==========================================TO Handle Delete User==========================================*/
 
 void delete_user(void)
 {
@@ -1052,4 +1052,45 @@ void delete_user(void)
         }
 
     } while (1);
+}
+
+
+/*==========================================TO Handle Delete User Transaction==========================================*/
+
+void delete_user_transaction(const char *acc_num)
+{
+    FILE *fp, *temp_fp;
+    trans history;
+
+    fp = fopen("transaction.dat", "rb");
+    temp_fp = fopen("temp_tr.dat", "wb");
+
+    if (!fp || !temp_fp)
+    {
+        perror("fopen");
+        return;
+    }
+
+    while (fread(&history, sizeof(history), 1, fp))
+    {
+        if (strcmp(history.acc, acc_num) != 0)
+        {
+            fwrite(&history, sizeof(history), 1, temp_fp);
+        }
+    }
+
+    fclose(fp);
+    fclose(temp_fp);
+
+    if (remove("transaction.dat") != 0)
+    {
+        perror("remove transaction.dat");
+        return;
+    }
+
+    if (rename("temp_tr.dat", "transaction.dat") != 0)
+    {
+        perror("rename temp_tr.dat");
+        return;
+    }
 }
