@@ -882,3 +882,45 @@ void save_transaction(const char *acc_num, const char *type, double amt, double 
     fwrite(&history, sizeof(history), 1, fp);
     fclose(fp);
 }
+
+
+/*==========================================TO Handle View Transaction==========================================*/
+
+void view_transaction(const char *acc_num)
+{
+    FILE *fp;
+    trans history;
+    int found = 0;
+
+    fp = fopen("transaction.dat", "rb");
+
+    if (fp == NULL)
+    {
+        p_line("\nNo Transactions Yet!\n", 0.7);
+        p_line("Moving to Main Menu", 0.7);
+        p_line("...\n", 1.5);
+        return;
+    }
+
+    p_line("\n\t   TRANSACTION HISTORY", 0.7);
+    p_line("\n|=======================================|\n", 0.3);
+
+    while (fread(&history, sizeof(history), 1, fp))
+    {
+        if (strcmp(history.acc, acc_num) == 0)
+        {
+            printf("\nTYPE: %s | AMOUNT: %g | BALANCE: %g\n",
+                   history.type, history.amount, history.balance_after);
+
+            found = 1;
+        }
+    }
+
+    fclose(fp);
+
+    if (!found)
+    {
+        p_line("\n\n    No transactions for this account!\n", 0.7);
+        p_line("|----------------------------------------|\n", 0.2);
+    }
+}
