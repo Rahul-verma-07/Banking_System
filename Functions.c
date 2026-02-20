@@ -1,4 +1,38 @@
-//TO PRINT LINES
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+
+// MAKING SUITABLE FOR EVERY TYPE OF OS (Windows or Linux).
+#ifdef _WIN32
+#include <windows.h>
+void sleep_ms(int ms) { Sleep(ms); }
+#else
+#include <unistd.h>
+void sleep_ms(int ms) { usleep(ms * 1000); }
+#endif
+
+// STURCTURE FOR NEW USER.
+typedef struct user_details
+{
+    char name[100];
+    long long ph_num;
+    char acc_num[10];
+    char pass[10];
+    double balance;
+} data;
+
+typedef struct transaction
+{
+    char acc[10];
+    char type[10]; // DEPOSIT OR WITHDRAW
+    double amount; // TRANSACTION AMOUNT
+    double balance_after;
+} trans;
+
+
+
+/*==========================================TO PRINT LINES==========================================*/
 
 void p_line(const char *line, float seconds)
 {
@@ -23,7 +57,7 @@ void p_line(const char *line, float seconds)
 
 
 
-// TO CREATE NEW ACCOUNT
+/*==========================================TO Handle New-User==========================================*/
 void handle_new_user(void)
 {
     // USER DECLARE
