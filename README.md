@@ -5,7 +5,7 @@ AUTHOR - Rahul verma<br><br>
 Digital simulation of Banking System.<br>
 Full Functioning Bank.<br><br>
 Developed by using C-Lang  |  Used - </b>
-<br>
+<br><br>
 <pre>
 <b>         <u>Variables</u>, <u>Loops</u>, <u>Global-Functions</u><br>
           <u>File-I/O</u>, <u>Dynamic-Programming</u></b>
