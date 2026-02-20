@@ -373,3 +373,218 @@ void handle_login_acc(void)
         }
     } while (menu_choice != 'y');
 }
+
+
+/*==========================================To Handle Trancastion Menu==========================================*/
+
+void handle_transaction(data *user)
+{
+    FILE *fp;
+    data temp;
+    int option;
+
+    double deposit;
+    double withdraw;
+    do
+    {
+        clear_screen();
+        p_line("\n\n================| TRANSACTION MENU |================\n\n", 0.7);
+
+        p_line("  1 => Check Balance\n", 0.1);
+        p_line("  2 => Deposit Amount\n", 0.1);
+        p_line("  3 => Withdraw Amount\n", 0.1);
+        p_line("  4 => Other Options\n", 0.1);
+        p_line("  5 => Log Out\n", 0.1);
+
+        p_line("\n=> Please Select any Option: ", 0.7);
+
+        if (scanf("%d", &option) != 1 || option < 1 || option > 5)
+        {
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\nInvalid Input!\n", 0.4);
+            p_line("SORRY! Please Try Again", 0.4);
+            p_line("-------\n", 1.5);
+
+            clear_screen();
+            continue;
+        }
+
+        getchar();
+
+        switch (option)
+        {
+        case 1:
+            p_line("\n\n=> Your Available Balance is:  ", 0.7);
+            printf("---| %g Rupees |---\n", user->balance);
+            p_line("\n|==================================================|\n\n", 0.1);
+            break;
+
+        case 2:
+            p_line("\n\n=> Enter the Amount to Deposit: ", 0.7);
+            scanf("%lf", &deposit);
+
+            if (deposit <= 0)
+            {
+                p_line("\n\n| Invalid Deposit Amount |\n", 0.7);
+
+                while (getchar() != '\n')
+                    ;
+                break;
+            }
+            else
+            {
+
+                while (getchar() != '\n')
+                    ;
+
+                fp = fopen("data.dat", "rb+");
+                // READS THE FILE AND WRITE IN THE FILE
+
+                if (fp == NULL)
+                {
+                    p_line("\n\tSorry Server Error!\n", 0.7);
+                    p_line("\t Please Try Again", 0.7);
+                    printf("|========================================|\n");
+                    return;
+                }
+
+                while (fread(&temp, sizeof(temp), 1, fp))
+                {
+                    // IF THE ACCOUNT NUMBER IS MATHCHED OR FOUND IN THE FILE
+                    if (strcmp(temp.acc_num, user->acc_num) == 0)
+                    {
+                        // THE POINTER POINTS TO THE USER WHOSE USING THE FILE
+                        fseek(fp, -sizeof(temp), SEEK_CUR);
+
+                        user->balance += deposit;
+
+                        // APPENDING THE AMOUNT IN THE FILE
+                        fwrite(user, sizeof(*user), 1, fp);
+                        break; // IF AMOUNT UPDATED THE LOOP TERMINATES
+                    }
+                }
+
+                fclose(fp);
+
+                p_line("\n\n              In Process", 0.7);
+                p_line("....", 2.5);
+                p_line("\n---| Amount Deposited Successfully |---\n\n", 0.7);
+                p_line("\n=> Amount You Deposit: ", 0.7);
+                printf("| %g Rupees |", deposit);
+                p_line("\n\n=> Your Current Balance: ", 0.7);
+                printf("| %g Rupees |\n", user->balance);
+                p_line("\n|==================================================|\n\n", 0.7);
+
+                save_transaction(user->acc_num, "Deposit", deposit, user->balance);
+                break;
+            }
+
+        case 3:
+            p_line("\n\n=> Enter the Amount to withdraw: ", 0.7);
+            scanf("%lf", &withdraw);
+
+            if (withdraw > user->balance)
+            {
+                p_line("\n\n| \t   Your Balance is Low!\t\t   |\n", 0.1);
+                p_line("|  Withdraw Not Possible- Process Failed!  |\n", 0.1);
+
+                while (getchar() != '\n')
+                    ;
+                break;
+            }
+            else if (withdraw <= 0)
+            {
+                p_line("\n\n| Invalid Withdraw Amount |\n", 0.7);
+
+                while (getchar() != '\n')
+                    ;
+                break;
+            }
+            else
+            {
+
+                while (getchar() != '\n')
+                    ;
+
+                fp = fopen("data.dat", "rb+");
+                // READS THE FILE AND WRITE IN THE FILE
+
+                if (fp == NULL)
+                {
+                    p_line("\n\tSorry Server Error!\n", 0.7);
+                    p_line("\t Please Try Again", 0.7);
+                    printf("|========================================|\n");
+                    return;
+                }
+
+                while (fread(&temp, sizeof(temp), 1, fp))
+                {
+                    // IF THE ACCOUNT NUMBER IS MATHCHED OR FOUND IN THE FILE
+                    if (strcmp(temp.acc_num, user->acc_num) == 0)
+                    {
+                        // THE POINTER POINTS TO THE USER WHOSE USING THE FILE
+                        fseek(fp, -sizeof(temp), SEEK_CUR);
+
+                        user->balance -= withdraw;
+
+                        // APPENDING THE AMOUNT IN THE FILE
+                        fwrite(user, sizeof(*user), 1, fp);
+                        break; // IF AMOUNT UPDATED THE LOOP TERMINATES
+                    }
+                }
+
+                fclose(fp);
+
+                p_line("\n\n              In Process", 0.7);
+                p_line("....", 2.5);
+                p_line("\n---| Amount Withdrawed Successfully |---\n", 0.7);
+                p_line("\n\n=> Amount You Withdraw: ", 0.7);
+                printf("| %g Rupees |", withdraw);
+                p_line("\n\n=> Your Current Balance: ", 0.7);
+                printf("| %g Rupees |\n", user->balance);
+                p_line("\n|==================================================|\n\n", 0.1);
+
+                save_transaction(user->acc_num, "Withdraw", withdraw, user->balance);
+                break;
+            }
+
+        case 4:
+            p_line("\n  \tMoving to Other Options", 0.7);
+            p_line("...\n", 1.5);
+            // CALLED IN OTHER OPTION FUNCTIONs
+            handle_other_option(user);
+            continue;
+
+        case 5:
+            p_line("\n\nLogging Out", 0.7);
+            p_line(".....\n", 1.5);
+            p_line("Logged Out Succesfully!\n\n", 0.7);
+            clear_screen();
+            return;
+
+        default:
+            p_line("\nInvalid Option Input!\n", 0.4);
+            p_line("SORRY! Please Try Again", 0.4);
+            p_line("...\n", 1.5);
+            clear_screen();
+            continue;
+        }
+
+        if (option != 5)
+        {
+            p_line("\n\n=> Press \"ENTER Twice\" to Move Back: ", 0.7);
+            getchar();
+
+            while (getchar() != '\n')
+                ;
+
+            p_line("\n\tReloading Page", 0.7);
+            p_line("...\n", 1.5);
+            clear_screen();
+        }
+
+    } while (1);
+}
