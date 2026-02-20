@@ -58,6 +58,7 @@ void p_line(const char *line, float seconds)
 
 
 /*==========================================TO Handle New-User==========================================*/
+
 void handle_new_user(void)
 {
     // USER DECLARE
@@ -248,4 +249,127 @@ void handle_new_user(void)
     p_line("...\n", 1.5);
     clear_screen();
     return;
+}
+
+
+/*==========================================TO Handle User-Loggin==========================================*/
+
+void handle_login_acc(void)
+{
+    data user, temp; // temp USE TO CHECK VALID USER
+    FILE *fp;
+
+    while (1)
+    {
+        p_line("\n\n================| LOG-IN PAGE |================\n\n", 0.7);
+
+        // TAKE ACCOUNT NUMBER INPUT
+        p_line("\n=> Enter Your Account Number: ", 0.1);
+        fgets(user.acc_num, sizeof(user.acc_num), stdin);
+        user.acc_num[strcspn(user.acc_num, "\n")] = '\0';
+
+        // TAKE PASSWORD INPUT
+        p_line("\n=> Enter Your Password: ", 0.3);
+        fgets(user.pass, sizeof(user.pass), stdin);
+        user.pass[strcspn(user.pass, "\n")] = '\0';
+
+        // TO CHECK IN  FILE
+        int exist1 = 0;
+
+        fp = fopen("data.dat", "rb");
+
+        if (fp == NULL)
+        {
+            p_line("\n\n\tSorry Server Error!\n", 0.7);
+            p_line("\tPlease Try Again", 0.7);
+            p_line("...\n", 1.5);
+            return;
+        }
+
+        if (fp != NULL)
+        {
+            while (fread(&temp, sizeof(temp), 1, fp))
+            {
+                if (strcmp(temp.acc_num, user.acc_num) == 0 &&
+                    strcmp(temp.pass, user.pass) == 0)
+                {
+                    // FOR USER NAME & PHONE NUMBER
+                    // strcpy(user.name, temp.name);
+                    // user.ph_num = temp.ph_num;
+                    user = temp;
+                    exist1 = 1;
+                    break;
+                }
+            }
+            fclose(fp);
+        }
+
+        if (exist1)
+        {
+            p_line("\n\nLogging In", 0.7);
+            p_line(".....\n", 1.5);
+            p_line("Logged In Succesfully!\n\n", 0.7);
+            break; // USER FOUND
+        }
+        else
+        {
+            p_line("\n\n\tNo User Found! or ", 0.7);
+            p_line("Incorrect Password!\n", 0.7);
+            p_line("\t\tPlease Try Again!", 0.7);
+            p_line("...\n", 1.5);
+            clear_screen();
+        }
+    }
+
+    // PRINT ACCOUNT DETAILS
+    p_line("\n\n  \tAccount Details\t\n", 0.5);
+    p_line("|=============================|\n\n", 0.5);
+
+    p_line("| Account Holder: ", 0.7);
+    printf("%s |\n\n", user.name);
+    p_line("| Phone Number: ", 0.7);
+    printf("  %lld  |\n", user.ph_num);
+    p_line("| Account Number: ", 0.7);
+    printf("%s      |", user.acc_num);
+    p_line(" \n", 0.7);
+
+    // MOVING TOWARDS THE NEXT FUNTION
+
+    char menu_choice;
+
+    do
+    {
+        {
+            p_line("\n\nDo You want move to Transaction Menu (y/n): ", 0.7);
+            scanf(" %c", &menu_choice);
+
+            while (getchar() != '\n')
+                ;
+
+            menu_choice = tolower(menu_choice);
+
+            if (menu_choice != 'y' && menu_choice != 'n')
+            {
+                p_line("\nInvalid Input!\n", 0.4);
+                p_line("SORRY! Please Try Again", 0.4);
+                p_line("-------\n", 0.7);
+                continue;
+            }
+            else if (menu_choice == 'y')
+            {
+                p_line("\n  \tMoving to Transaction Menu", 0.4);
+                p_line("...\n", 1.5);
+
+                // PASSING USER DETAILS TO TRANSACTION FUNCTION
+                handle_transaction(&user);
+            }
+            else
+            {
+                p_line("\n  \tMoving to Main Menu", 0.4);
+                p_line("...\n", 1.5);
+                clear_screen();
+                break;
+            }
+        }
+    } while (menu_choice != 'y');
 }
